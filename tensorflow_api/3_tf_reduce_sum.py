@@ -42,7 +42,8 @@ x = tf.constant([[1, 2, 4], [8, 16, 32]])
 a = tf.reduce_sum(x, 0)  # [ 9 18 36]
 b = tf.reduce_sum(x, 1)  # [ 7 56]
 c = tf.reduce_sum(x, [0, 1])  # 63
-d = tf.reduce_sum(x, 1, keepdims=True)
+d = tf.reduce_sum(x, 1, keepdims=True) # [[ 7]
+                                       #  [56]]
 
 
 with tf.Session() as sess:

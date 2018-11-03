@@ -21,9 +21,12 @@ import tensorflow as tf
 #
 #  Returns the rank of a tensor.
 
-x = tf.constant([[1, 2, 4]]) # one rows, three columns
-x2 = tf.constant([[1, 2, 4], [8, 16, 32]]) # two rows, three columns
-x3 = tf.constant([1, 2, 4]) # one rows
+#  tf.rank returns the dimension of a tensor, not the number of elements. For
+#  instance, the output from tf.rank called for the 2x2 matrix would be 2.
+
+x = tf.constant([[1, 2, 4]]) # 2x2 matrix
+x2 = tf.constant([[1, 2, 4], [8, 16, 32]]) # 2x2 matrix
+x3 = tf.constant([1, 2, 4]) # 1x1 matrix
 
 with tf.Session() as sess:
     print(sess.run(tf.rank(x))) # 2
