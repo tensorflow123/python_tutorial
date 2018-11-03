@@ -12,25 +12,20 @@
 #   * See the License for the specific language governing permissions and
 #   * limitations under the License.
 #   */
-
 import tensorflow as tf
-import numpy as np
 
-
-#  Computes the maximum of elements across dimensions of a tensor. (deprecated arguments)
-#
-#  tf.reduce_max(
-#      input_tensor,
-#      axis=None,
-#      keepdims=None,
-#      name=None,
-#      reduction_indices=None,
-#      keep_dims=None
+#  tf.rank(
+#      input,
+#      name=None
 #      )
+#
+#  Returns the rank of a tensor.
 
-c = np.array([[3.,4], [5.,6], [6.,7]])
+x = tf.constant([[1, 2, 4]]) # one rows, three columns
+x2 = tf.constant([[1, 2, 4], [8, 16, 32]]) # two rows, three columns
+x3 = tf.constant([1, 2, 4]) # one rows
 
-step = tf.reduce_max(c, 1)
 with tf.Session() as sess:
-    print(sess.run(step))
-
+    print(sess.run(tf.rank(x))) # 2
+    print(sess.run(tf.rank(x2))) # 2
+    print(sess.run(tf.rank(x3))) # 1
