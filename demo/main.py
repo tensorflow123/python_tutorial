@@ -38,10 +38,10 @@ def max_pool_2x2(x):
     return tf.nn.max_pool(x, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
 
 # define placeholder for inputs to network
-xs = tf.placeholder(tf.float32, [None, 784])/255.   # 28x28
-ys = tf.placeholder(tf.float32, [None, 10])
-keep_prob = tf.placeholder(tf.float32)
-x_image = tf.reshape(xs, [-1, 28, 28, 1])
+xs = tf.placeholder(tf.float32, [None, 784], name='input_x')/255.   # 28x28
+ys = tf.placeholder(tf.float32, [None, 10], name='input_y')
+keep_prob = tf.placeholder(tf.float32, name='prob')
+x_image = tf.reshape(xs, [-1, 28, 28, 1], name='x_image')
 # print(x_image.shape)  # [n_samples, 28,28,1]
 
 ## conv1 layer ##
@@ -91,4 +91,12 @@ for i in range(1000):
     if i % 50 == 0:
         print(compute_accuracy(
             mnist.test.images[:1000], mnist.test.labels[:1000]))
+
+
+# Save module
+saver = tf.train.Saver()
+tf.add_to_collection('prediction', prediction)
+model_path = "./model/my_model"
+save_path = saver.save(sess, model_path)
+print("Model saved in file: %s" % save_path)
 
