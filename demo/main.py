@@ -91,12 +91,13 @@ for i in range(1000):
     if i % 50 == 0:
         print(compute_accuracy(
             mnist.test.images[:1000], mnist.test.labels[:1000]))
+    if i == 999:
+        # Save module
+        saver = tf.train.Saver()
+        tf.add_to_collection('prediction', prediction)
+        model_path = "./model/my_model"
+        save_path = saver.save(sess, model_path)
+        print("Model saved in file: %s" % save_path)
 
 
-# Save module
-saver = tf.train.Saver()
-tf.add_to_collection('prediction', prediction)
-model_path = "./model/my_model"
-save_path = saver.save(sess, model_path)
-print("Model saved in file: %s" % save_path)
 

@@ -39,7 +39,7 @@ def load_mnist(path, kind='train'):
 
     return images, labels
 
-X_train, y_train = load_mnist('MNIST_data')
+X_train, y_train = load_mnist('data', 't10k')
 
 fig, ax = plt.subplots(
     nrows=2,
@@ -49,6 +49,7 @@ fig, ax = plt.subplots(
 
 ax = ax.flatten()
 for i in range(10):
+    print (y_train)
     img = X_train[y_train == i][0].reshape(28, 28)
     ax[i].imshow(img, cmap='Greys', interpolation='nearest')
 
