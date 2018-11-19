@@ -85,12 +85,12 @@ else:
 saved_model_dir='./model'
 builder = tf.saved_model.builder.SavedModelBuilder(saved_model_dir)
 
-# x 为输入tensor, keep_prob为dropout的prob tensor 
+# input_x, keep_prob
 inputs = {'input_x': tf.saved_model.utils.build_tensor_info(xs),
 	  'input_y': tf.saved_model.utils.build_tensor_info(ys),
           'keep_prob': tf.saved_model.utils.build_tensor_info(keep_prob)}
 
-# y 为最终需要的输出结果tensor 
+# prediction 为预测函数，恢复的时候要通过该函数来预测
 outputs = {'prediction' : tf.saved_model.utils.build_tensor_info(prediction)}
 
 signature = tf.saved_model.signature_def_utils.build_signature_def(inputs, outputs, 'test_sig_name')
