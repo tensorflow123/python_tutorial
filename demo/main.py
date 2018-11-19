@@ -12,8 +12,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 # number 1 to 10 data
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
-def compute_accuracy(v_xs, v_ys):
-    global prediction
+def compute_accuracy(sess, prediction, v_xs, v_ys):
     y_pre = sess.run(prediction, feed_dict={xs: v_xs, keep_prob: 1})
     correct_prediction = tf.equal(tf.argmax(y_pre,1), tf.argmax(v_ys,1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -75,7 +74,6 @@ cross_entropy = tf.reduce_mean(-tf.reduce_sum(ys * tf.log(prediction),
                                               reduction_indices=[1]))       # loss
 train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
-sess = tf.Session()
 # important step
 # tf.initialize_all_variables() no long valid from
 # 2017-03-02 if using tensorflow >= 0.12
@@ -83,21 +81,30 @@ if int((tf.__version__).split('.')[1]) < 12 and int((tf.__version__).split('.')[
     init = tf.initialize_all_variables()
 else:
     init = tf.global_variables_initializer()
-sess.run(init)
 
-for i in range(1000):
-    batch_xs, batch_ys = mnist.train.next_batch(100)
-    sess.run(train_step, feed_dict={xs: batch_xs, ys: batch_ys, keep_prob: 0.5})
-    if i % 50 == 0:
-        print(compute_accuracy(
-            mnist.test.images[:1000], mnist.test.labels[:1000]))
-    if i == 999:
-        # Save module
-        saver = tf.train.Saver()
-        tf.add_to_collection('prediction', prediction)
-        model_path = "./model/my_model"
-        save_path = saver.save(sess, model_path)
-        print("Model saved in file: %s" % save_path)
+saved_model_dir='./model'
+builder = tf.saved_model.builder.SavedModelBuilder(saved_model_dir)
 
+# x 为输入tensor, keep_prob为dropout的prob tensor 
+inputs = {'input_x': tf.saved_model.utils.build_tensor_info(xs),
+	  'input_y': tf.saved_model.utils.build_tensor_info(ys),
+          'keep_prob': tf.saved_model.utils.build_tensor_info(keep_prob)}
 
+# y 为最终需要的输出结果tensor 
+outputs = {'prediction' : tf.saved_model.utils.build_tensor_info(prediction)}
+
+signature = tf.saved_model.signature_def_utils.build_signature_def(inputs, outputs, 'test_sig_name')
+
+with tf.Session() as sess:
+    sess.run(init)
+
+    for i in range(1000):
+        batch_xs, batch_ys = mnist.train.next_batch(100)
+        sess.run(train_step, feed_dict={xs: batch_xs, ys: batch_ys, keep_prob: 0.5})
+        if i % 50 == 0:
+            print(compute_accuracy(sess, prediction,
+                mnist.test.images[:1000], mnist.test.labels[:1000]))
+
+    builder.add_meta_graph_and_variables(sess, ['model_final'], {'test_signature':signature})
+    builder.save()
 
