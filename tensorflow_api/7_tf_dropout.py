@@ -14,24 +14,19 @@
 #   */
 from __future__ import print_function
 import tensorflow as tf
-from tensorflow.examples.tutorials.mnist import input_data
+import numpy as np
 
+with tf.Session() as sess:
+    x=np.asarray([1,2,3,4,5,6,7,8,9,10],dtype=np.float32)
 
-sess = tf.Session()
-a = tf.constant([1.,2.,3.,0.,9.,])
-b = tf.constant([[1,2,3],
-                 [3,2,1],
-                 [4,5,6],
-                 [6,5,4]])
+    #  [ 1.  2.  3.  4.  5.  6.  7.  8.  9. 10.]
+    print(x)
 
-col_max0 = sess.run(tf.argmax(a, 0))
-print (col_max0)
-#  4
+    # keep_prob= 0.1，预期有9个数据*0, 实际上不一定
+    out = tf.nn.dropout(x, 0.1)
 
-col_max = sess.run(tf.argmax(b, 0) )  #当axis=0时返回每一列的最大值的位置索引
-print (col_max)
-#  [3 2 2]
-
-row_max = sess.run(tf.argmax(b, 1) )  #当axis=1时返回每一行中的最大值的位置索引
-print (row_max)
-#  [2 0 2 0]
+    # 注意有可能是
+    # 变为原来的10倍是因为里面有一个操作是 x / keep_prob
+    #  [ 0. 20. 30.  0.  0.  0.  0.  0.  0.  0.]
+    #  [ 0. 0. 30.  0.  0.  0.  0.  0.  0.  0.]
+    print(out.eval())
