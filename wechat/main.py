@@ -21,11 +21,24 @@ from keras.models import model_from_json
 import os
 import keras
 from keras.callbacks import TensorBoard
+from time import time
+from keras.models import load_model
 
-train_dir=r'/tmp/wechat_test'
+train_dir=r'/home/v/.keras/wechat_test/'
+tensorboard_logdir=train_dir + 'logs/{}'.format(time())
+checkpoint_model=train_dir + 'checkpoint_min_loss_model.h5'
+final_model = train_dir + 'final_model.h5'
+
 if not os.path.exists(train_dir):
     os.mkdir(train_dir)
 os.chdir(train_dir)
+
+print ('try to load model ' + checkpoint_model)
+if os.path.exists(checkpoint_model):
+    print('loading ' + checkpoint_model + ' success')
+    model = load_model(checkpoint_model)
+else:
+    print('train from begining...')
 
 #获取指定目录下的所有图片
 samples = glob.glob(r'/home/v/.keras/datasets/sample/*.jpg')
@@ -104,11 +117,10 @@ plot_model(model, to_file="model.png", show_shapes=True)
 
 from keras.callbacks import ModelCheckpoint
 # Set callback functions to early stop training and save the best model so far
-checkpoint = ModelCheckpoint(filepath='min_loss_models.hdf5', monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+checkpoint = ModelCheckpoint(filepath=checkpoint_model, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
 
-from time import time
 tensorboard = keras.callbacks.TensorBoard(
-    log_dir="/tmp/wechat_test/logs/{}".format(time()),
+    log_dir=tensorboard_logdir,
     histogram_freq=0,
     write_graph=True,
     write_images=True)
@@ -138,7 +150,7 @@ model.fit_generator(data_generator(train_samples, 10),
 #  initial_epoch: 从该参数指定的epoch开始训练，在继续之前的训练时有用。
 
 #保存模型
-model.save('CaptchaForWechat.h5')
+model.save(final_model)
 
 #评价模型的全对率(批量预测,num为预测样本总量)
 def predict1(num):
