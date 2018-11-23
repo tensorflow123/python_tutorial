@@ -19,6 +19,8 @@ import glob
 import h5py 
 from keras.models import model_from_json  
 import os
+import keras
+from keras.callbacks import TensorBoard
 
 train_dir=r'/tmp/wechat_test'
 if not os.path.exists(train_dir):
@@ -100,7 +102,23 @@ def data_generator(data, batch_size): #样本生成器，节省内存
 from keras.utils.vis_utils import plot_model
 plot_model(model, to_file="model.png", show_shapes=True)
 
-model.fit_generator(data_generator(train_samples, 10), steps_per_epoch=100, epochs=1000, validation_data=data_generator(test_samples, 10), validation_steps=100)
+from time import time
+tensorboard = keras.callbacks.TensorBoard(
+    log_dir="/tmp/wechat_test/logs/{}".format(time()),
+    histogram_freq=0,
+    write_graph=True,
+    write_images=True)
+
+callbacks = [
+    tensorboard
+]
+
+model.fit_generator(data_generator(train_samples, 10),
+                    steps_per_epoch=100,
+                    epochs=1000,
+                    validation_data=data_generator(test_samples, 10),
+                    validation_steps=100,
+                    callbacks=callbacks)
 #  参数：generator生成器函数,
 #  samples_per_epoch，每个epoch以经过模型的样本数达到samples_per_epoch时，记一个epoch结束
 #  step_per_epoch:整数，当生成器返回step_per_epoch次数据是记一个epoch结束，执行下一个epoch
