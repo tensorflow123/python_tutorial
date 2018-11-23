@@ -102,6 +102,10 @@ def data_generator(data, batch_size): #样本生成器，节省内存
 from keras.utils.vis_utils import plot_model
 plot_model(model, to_file="model.png", show_shapes=True)
 
+from keras.callbacks import ModelCheckpoint
+# Set callback functions to early stop training and save the best model so far
+checkpoint = ModelCheckpoint(filepath='min_loss_models.hdf5', monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+
 from time import time
 tensorboard = keras.callbacks.TensorBoard(
     log_dir="/tmp/wechat_test/logs/{}".format(time()),
@@ -110,6 +114,7 @@ tensorboard = keras.callbacks.TensorBoard(
     write_images=True)
 
 callbacks = [
+    checkpoint,
     tensorboard
 ]
 
