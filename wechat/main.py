@@ -73,8 +73,8 @@ predicts = [Dense(26, activation='softmax')(Dropout(0.5)(base_model.output)) for
 
 print ('try to load model ' + checkpoint_model)
 if os.path.exists(checkpoint_model):
-    print('loading ' + checkpoint_model + ' success')
     model = load_model(checkpoint_model)
+    print('loading ' + checkpoint_model + ' success')
 else:
     print('train from begining...')
     optimizer = keras.optimizers.Adam(lr=0.00001)
@@ -121,7 +121,7 @@ earlystop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbo
 
 from keras.callbacks import ModelCheckpoint
 # Set callback functions to early stop training and save the best model so far
-checkpoint = ModelCheckpoint(filepath=checkpoint_model, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+checkpoint = ModelCheckpoint(filepath=checkpoint_model, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 
 tensorboard = keras.callbacks.TensorBoard(
     log_dir=tensorboard_logdir,
@@ -136,10 +136,10 @@ callbacks = [
 ]
 
 model.fit_generator(data_generator(train_samples, 10),
-                    steps_per_epoch=1,
-                    epochs=1,
+                    steps_per_epoch=10,
+                    epochs=10,
                     validation_data=data_generator(test_samples, 10),
-                    validation_steps=1,
+                    validation_steps=10,
                     callbacks=callbacks)
 #  参数：generator生成器函数,
 #  samples_per_epoch，每个epoch以经过模型的样本数达到samples_per_epoch时，记一个epoch结束
