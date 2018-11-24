@@ -115,7 +115,7 @@ def data_generator(data, batch_size): #样本生成器，节省内存
 from keras.utils.vis_utils import plot_model
 plot_model(model, to_file="model.png", show_shapes=True)
 
-keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1, mode='auto')
+earlystop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1, mode='auto')
 
 from keras.callbacks import ModelCheckpoint
 # Set callback functions to early stop training and save the best model so far
@@ -129,7 +129,8 @@ tensorboard = keras.callbacks.TensorBoard(
 
 callbacks = [
     checkpoint,
-    tensorboard
+    tensorboard,
+    earlystop
 ]
 
 model.fit_generator(data_generator(train_samples, 10),
