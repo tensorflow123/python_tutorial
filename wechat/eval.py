@@ -71,15 +71,15 @@ base_model = Xception(input_tensor=input_image, weights='imagenet', include_top=
 predicts = [Dense(26, activation='softmax')(Dropout(0.5)(base_model.output)) for i in range(4)]
 
 
-print ('try to load model ' + checkpoint_model)
-if os.path.exists(checkpoint_model):
-    print('loading ' + checkpoint_model + ' success')
-    model = load_model(checkpoint_model)
-else:
-    print('train from begining...')
-    optimizer = keras.optimizers.Adam(lr=0.00001)
-    model = Model(inputs=input_image, outputs=predicts)
-    model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+#  print ('try to load model ' + checkpoint_model)
+#  if os.path.exists(checkpoint_model):
+#      print('loading ' + checkpoint_model + ' success')
+#      model = load_model(checkpoint_model)
+#  else:
+#      print('train from begining...')
+#      optimizer = keras.optimizers.Adam(lr=0.00001)
+#      model = Model(inputs=input_image, outputs=predicts)
+#      model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
 #optimizer：优化器的选择可以参考这篇博客https://www.jianshu.com/p/d99b83f4c1a6
 #loss：损失函数，这里选去稀疏多类对数损失
@@ -135,12 +135,12 @@ callbacks = [
     earlystop
 ]
 
-model.fit_generator(data_generator(train_samples, 10),
-                    steps_per_epoch=1,
-                    epochs=1,
-                    validation_data=data_generator(test_samples, 10),
-                    validation_steps=1,
-                    callbacks=callbacks)
+#  model.fit_generator(data_generator(train_samples, 10),
+#                      steps_per_epoch=1,
+#                      epochs=1,
+#                      validation_data=data_generator(test_samples, 10),
+#                      validation_steps=1,
+#                      callbacks=callbacks)
 #  参数：generator生成器函数,
 #  samples_per_epoch，每个epoch以经过模型的样本数达到samples_per_epoch时，记一个epoch结束
 #  step_per_epoch:整数，当生成器返回step_per_epoch次数据是记一个epoch结束，执行下一个epoch
@@ -154,9 +154,9 @@ model.fit_generator(data_generator(train_samples, 10),
 #  pickle_safe: 若为真，则使用基于进程的线程。由于该实现依赖多进程，不能传递non picklable（无法被pickle序列化）的参数到生成器中，因为无法轻易将它们传入子进程中。
 #  initial_epoch: 从该参数指定的epoch开始训练，在继续之前的训练时有用。
 
-keras.backend.manual_variable_initialization(True)
-#保存模型
-model.save(final_model)
+#  keras.backend.manual_variable_initialization(True)
+#  #保存模型
+#  model.save(final_model)
 
 #评价模型的全对率(批量预测,num为预测样本总量)
 def predict1(num):
@@ -166,7 +166,7 @@ def predict1(num):
     step = 0
     for x,y in tqdm(data_generator(test_samples, num)):
         z = model.predict(x)
-        #  print (z)
+        print (z)
         z = np.array([i.argmax(axis=1) for i in z]).T
         #print (z)
         #i.argmax(axis = 1)返回每行中最大数的索引，i.argmax(axis = 0)返回每列中最大数的索引
@@ -213,4 +213,10 @@ def predict2(n):
     for i in v:
         str += i
     return (str)
-print (predict1(1))
+
+print ('try to load model ' + final_model)
+if os.path.exists(final_model):
+    model = load_model(final_model)
+    print('loading ' + final_model + ' success')
+
+predict1(1)
