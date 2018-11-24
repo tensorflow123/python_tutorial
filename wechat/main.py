@@ -72,12 +72,12 @@ predicts = [Dense(26, activation='softmax')(Dropout(0.5)(base_model.output)) for
 
 
 print ('try to load model ' + checkpoint_model)
-if os.path.exists(checkpoint_model):
+if 0 and os.path.exists(checkpoint_model):
     model = load_model(checkpoint_model)
     print('loading ' + checkpoint_model + ' success')
 else:
     print('train from begining...')
-    optimizer = keras.optimizers.Adam(lr=0.00001)
+    optimizer = keras.optimizers.Adam(lr=0.01)
     model = Model(inputs=input_image, outputs=predicts)
     model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
@@ -131,15 +131,15 @@ tensorboard = keras.callbacks.TensorBoard(
 
 callbacks = [
     checkpoint,
-    tensorboard,
-    earlystop
+    #  earlystop,
+    tensorboard
 ]
 
 model.fit_generator(data_generator(train_samples, 10),
                     steps_per_epoch=10,
-                    epochs=10,
+                    epochs=1000,
                     validation_data=data_generator(test_samples, 10),
-                    validation_steps=10,
+                    validation_steps=100,
                     callbacks=callbacks)
 #  参数：generator生成器函数,
 #  samples_per_epoch，每个epoch以经过模型的样本数达到samples_per_epoch时，记一个epoch结束
@@ -154,7 +154,7 @@ model.fit_generator(data_generator(train_samples, 10),
 #  pickle_safe: 若为真，则使用基于进程的线程。由于该实现依赖多进程，不能传递non picklable（无法被pickle序列化）的参数到生成器中，因为无法轻易将它们传入子进程中。
 #  initial_epoch: 从该参数指定的epoch开始训练，在继续之前的训练时有用。
 
-keras.backend.manual_variable_initialization(True)
+#  keras.backend.manual_variable_initialization(True)
 #保存模型
 model.save(final_model)
 
