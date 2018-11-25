@@ -166,7 +166,7 @@ def predict1(num):
     step = 0
     for x,y in tqdm(data_generator(test_samples, num)):
         z = model.predict(x)
-        print (z)
+        #  print (z)
         z = np.array([i.argmax(axis=1) for i in z]).T
         #print (z)
         #i.argmax(axis = 1)返回每行中最大数的索引，i.argmax(axis = 0)返回每列中最大数的索引
@@ -219,4 +219,5 @@ if os.path.exists(final_model):
     model = load_model(final_model)
     print('loading ' + final_model + ' success')
 
-predict1(1)
+#  print(predict1(100))
+print(predict2(1))
