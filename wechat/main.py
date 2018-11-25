@@ -23,7 +23,6 @@ import keras
 from keras.callbacks import TensorBoard
 from time import time
 from keras.models import load_model
-import modelcheck
 
 from keras.applications.xception import Xception,preprocess_input
 from keras.layers import Input,Dense,Dropout
@@ -34,7 +33,7 @@ tensorboard_logdir=train_dir + 'logs/{}'.format(time())
 checkpoint_model=train_dir + 'checkpoint_min_loss_model.h5'
 final_model = train_dir + 'final_model.h5'
 train_datasets= train_dir + '../datasets/sample/*.jpg'
-test_datasets = train_dir = '../datasets/wechat_test/*.jpg'
+test_datasets = train_dir + '../datasets/wechat_test/*.jpg'
 
 if not os.path.exists(train_dir):
     os.mkdir(train_dir)
@@ -72,15 +71,6 @@ base_model = Xception(input_tensor=input_image, weights='imagenet', include_top=
 #对四个字母做26分类
 predicts = [Dense(26, activation='softmax')(Dropout(0.5)(base_model.output)) for i in range(4)]
 
-print ('try to load model ' + checkpoint_model)
-if os.path.exists(checkpoint_model):
-    print('loading ' + checkpoint_model + ' success')
-    model = load_model(checkpoint_model)
-else:
-    print('train from begining...')
-    model = Model(inputs=input_image, outputs=predicts)
-
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
 #optimizer：优化器的选择可以参考这篇博客https://www.jianshu.com/p/d99b83f4c1a6
 #loss：损失函数，这里选去稀疏多类对数损失
@@ -114,51 +104,9 @@ def data_generator(data, batch_size): #样本生成器，节省内存
 
         #输出：图片array和四个转化成数字的字母 例如：[array([6]), array([0]), array([3]), array([24])])
         yield x,[y[:,i] for i in range(4)]
-
-#  from keras.utils.vis_utils import plot_model
-#  plot_model(model, to_file="model.png", show_shapes=True)
-
-earlystop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1, mode='auto')
-
-from keras.callbacks import ModelCheckpoint
-# Set callback functions to early stop training and save the best model so far
-checkpoint = ModelCheckpoint(filepath=checkpoint_model, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
-
-tensorboard = keras.callbacks.TensorBoard(
-    log_dir=tensorboard_logdir,
-    histogram_freq=0,
-    write_graph=True,
-    write_images=True)
-
-callbacks = [
-    #  checkpoint,
-    #  earlystop,
-    tensorboard
-]
-
-model.fit_generator(data_generator(train_samples, 10),
-                    steps_per_epoch=10,
-                    epochs=10000,
-                    validation_data=data_generator(test_samples, 10),
-                    validation_steps=100,
-                    callbacks=callbacks)
-#  参数：generator生成器函数,
-#  samples_per_epoch，每个epoch以经过模型的样本数达到samples_per_epoch时，记一个epoch结束
-#  step_per_epoch:整数，当生成器返回step_per_epoch次数据是记一个epoch结束，执行下一个epoch
-#  epochs:整数，数据迭代的轮数
-#  validation_data三种形式之一，生成器，类（inputs,targets）的元组，或者（inputs,targets，sample_weights）的元祖
-#  若validation_data为生成器，validation_steps参数代表验证集生成器返回次数
-#  class_weight：规定类别权重的字典，将类别映射为权重，常用于处理样本不均衡问题。
-#  sample_weight：权值的numpy array，用于在训练时调整损失函数（仅用于训练）。可以传递一个1D的与样本等长的向量用于对样本进行1对1的加权，或者在面对时序数据时，传递一个的形式为（samples，sequence_length）的矩阵来为每个时间步上的样本赋不同的权。这种情况下请确定在编译模型时添加了sample_weight_mode='temporal'。
-#  workers：最大进程数
-#  max_q_size：生成器队列的最大容量
-#  pickle_safe: 若为真，则使用基于进程的线程。由于该实现依赖多进程，不能传递non picklable（无法被pickle序列化）的参数到生成器中，因为无法轻易将它们传入子进程中。
-#  initial_epoch: 从该参数指定的epoch开始训练，在继续之前的训练时有用。
-
-#保存模型
-model.save(final_model)
-
+#  ============================================
 #评价模型的全对率(批量预测,num为预测样本总量)
+#  ============================================
 def predict1(num):
     from tqdm import tqdm
     total = 0.
@@ -213,5 +161,57 @@ def predict2(n):
     for i in v:
         str += i
     return (str)
+
+
+print ('try to load model ' + checkpoint_model)
+if os.path.exists(checkpoint_model):
+    model = load_model(checkpoint_model)
+    print('loading ' + checkpoint_model + ' success')
+    print(predict1(100))
+else:
+    print('train from begining...')
+    model = Model(inputs=input_image, outputs=predicts)
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+earlystop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1, mode='auto')
+
+from keras.callbacks import ModelCheckpoint
+# Set callback functions to early stop training and save the best model so far
+checkpoint = ModelCheckpoint(filepath=checkpoint_model, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+
+tensorboard = keras.callbacks.TensorBoard(
+    log_dir=tensorboard_logdir,
+    histogram_freq=0,
+    write_graph=True,
+    write_images=True)
+
+callbacks = [
+    #  checkpoint,
+    #  earlystop,
+    tensorboard
+]
+
+model.fit_generator(data_generator(train_samples, 10),
+                    steps_per_epoch=10,
+                    epochs=100,
+                    validation_data=data_generator(test_samples, 10),
+                    validation_steps=100,
+                    callbacks=callbacks)
+#  参数：generator生成器函数,
+#  samples_per_epoch，每个epoch以经过模型的样本数达到samples_per_epoch时，记一个epoch结束
+#  step_per_epoch:整数，当生成器返回step_per_epoch次数据是记一个epoch结束，执行下一个epoch
+#  epochs:整数，数据迭代的轮数
+#  validation_data三种形式之一，生成器，类（inputs,targets）的元组，或者（inputs,targets，sample_weights）的元祖
+#  若validation_data为生成器，validation_steps参数代表验证集生成器返回次数
+#  class_weight：规定类别权重的字典，将类别映射为权重，常用于处理样本不均衡问题。
+#  sample_weight：权值的numpy array，用于在训练时调整损失函数（仅用于训练）。可以传递一个1D的与样本等长的向量用于对样本进行1对1的加权，或者在面对时序数据时，传递一个的形式为（samples，sequence_length）的矩阵来为每个时间步上的样本赋不同的权。这种情况下请确定在编译模型时添加了sample_weight_mode='temporal'。
+#  workers：最大进程数
+#  max_q_size：生成器队列的最大容量
+#  pickle_safe: 若为真，则使用基于进程的线程。由于该实现依赖多进程，不能传递non picklable（无法被pickle序列化）的参数到生成器中，因为无法轻易将它们传入子进程中。
+#  initial_epoch: 从该参数指定的epoch开始训练，在继续之前的训练时有用。
+
+#保存模型
+model.save(final_model)
+
 
 print(predict1(100))
