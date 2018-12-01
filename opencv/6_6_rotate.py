@@ -1,3 +1,4 @@
+
 import argparse
 import numpy as np
 import cv2
@@ -12,7 +13,6 @@ args = vars(ap.parse_args())
 
 image = cv2.imread(args["image"])
 
-shifted = imutils.translate(image, 0, 100)
-cv2.imshow("shifted", shifted);
+rotated = imutils.rotate(image, 45)
+cv2.imshow("rotated", rotated);
 cv2.waitKey(0)
-
