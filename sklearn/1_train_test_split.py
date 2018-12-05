@@ -1,3 +1,4 @@
+# -*- coding=utf-8 -*-
 #  /* Copyright 2018 kunming.xie
 #   *
 #   * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +13,7 @@
 #   * See the License for the specific language governing permissions and
 #   * limitations under the License.
 #   */
-[ 代码 ] (https://github.com/tensorflow123/python_tutorial/tree/master/sklearn/1_train_test_split.py)
+#[ 代码 ] (https://github.com/tensorflow123/python_tutorial/tree/master/sklearn/1_train_test_split.py)
 from __future__ import print_function
 import numpy as np
 from sklearn.model_selection import train_test_split
