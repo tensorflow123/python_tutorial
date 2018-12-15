@@ -29,13 +29,15 @@ train_dir=r'/home/v/.keras/wechat_test/'
 tensorboard_logdir=train_dir + 'logs/{}'.format(time())
 checkpoint_model=train_dir + 'checkpoint_min_loss_model.h5'
 final_model = train_dir + 'final_model.h5'
+train_datasets= train_dir + '../datasets/sample/*.jpg'
+test_datasets = train_dir + '../datasets/wechat_test/*.jpg'
 
 if not os.path.exists(train_dir):
     os.mkdir(train_dir)
 os.chdir(train_dir)
 
 #获取指定目录下的所有图片
-samples = glob.glob(r'/home/v/.keras/datasets/sample/*.jpg')
+samples = glob.glob(train_datasets)
 np.random.shuffle(samples) 
 
 nb_train = 90000 #共有10万+样本，9万用于训练，1万+用于验证
@@ -181,7 +183,7 @@ def predict1(num):
     result = u'模型全对率：%s'%(right/total)
     return result
 
-test_samples1 = glob.glob(r'/home/v/.keras/datasets/sample/*.jpg')
+test_samples1 = glob.glob(test_datasets)
 test_list = [i for i in range(len(test_samples1))]
 def data_generator_test1(data, n): #样本生成器，节省内存
     while True:
